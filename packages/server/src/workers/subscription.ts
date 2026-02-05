@@ -46,12 +46,18 @@ import { RewriteMode, rewriteAttachments } from '../fhir/rewrite';
 import { getLogger, globalLogger } from '../logger';
 import type { AuthState } from '../oauth/middleware';
 import { recordHistogramValue } from '../otel/otel';
-import { getRedis, reconnectOnError } from '../redis';
+import { getCacheRedis, getPubSubRedis } from '../redis';
 import type { SubEventsOptions } from '../subscriptions/websockets';
 import { parseTraceparent } from '../traceparent';
 import { AuditEventOutcome, createSubscriptionAuditEvent } from '../util/auditevent';
 import type { WorkerInitializer } from './utils';
-import { addVerboseQueueLogging, findProjectMembership, isJobSuccessful, queueRegistry } from './utils';
+import {
+  addVerboseQueueLogging,
+  findProjectMembership,
+  getBullmqRedisConnectionOptions,
+  isJobSuccessful,
+  queueRegistry,
+} from './utils';
 
 /**
  * The timeout for outbound rest-hook subscription HTTP requests.
@@ -118,7 +124,7 @@ const jobName = 'SubscriptionJobData';
 
 export const initSubscriptionWorker: WorkerInitializer = (config) => {
   const defaultOptions: QueueBaseOptions = {
-    connection: { ...config.redis, reconnectOnError },
+    connection: getBullmqRedisConnectionOptions(config),
   };
 
   const queue = new Queue<SubscriptionJobData>(queueName, {
@@ -338,7 +344,7 @@ export async function addSubscriptionJobs(
   }
 
   if (wsEvents.length) {
-    await getRedis().publish('medplum:subscriptions:r4:websockets', JSON.stringify(wsEvents));
+    await getPubSubRedis().publish('medplum:subscriptions:r4:websockets', JSON.stringify(wsEvents));
   }
 }
 
@@ -403,7 +409,7 @@ async function getSubscriptions(resource: Resource, project: WithId<Project>): P
       },
     ],
   });
-  const redis = getRedis();
+  const redis = getCacheRedis();
   const setKey = `medplum:subscriptions:r4:project:${projectId}:active`;
   const redisOnlySubRefStrs = await redis.smembers(setKey);
   if (redisOnlySubRefStrs.length) {
