@@ -27,7 +27,7 @@ import { RewriteMode } from '../fhir/rewrite';
 import { globalLogger } from '../logger';
 import * as keysModule from '../oauth/keys';
 import * as oauthUtilsModule from '../oauth/utils';
-import { getRedis } from '../redis';
+import { getCacheRedis } from '../redis';
 import { createTestProject, withTestContext } from '../test.setup';
 
 jest.mock('hibp');
@@ -147,7 +147,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${patientSubscription?.id}`
                 )
@@ -183,7 +183,7 @@ describe('WebSocket Subscription', () => {
         await sleep(0);
         subActive =
           (
-            await getRedis().smismember(
+            await getCacheRedis().smismember(
               `medplum:subscriptions:r4:project:${project.id}:active`,
               `Subscription/${patientSubscription?.id}`
             )
@@ -274,7 +274,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${patientSubscription?.id}`
                 )
@@ -306,7 +306,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${patientSubscription?.id}`
                 )
@@ -473,7 +473,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${subscription.id}`
                 )
@@ -679,7 +679,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${subscription.id}`
                 )
@@ -808,7 +808,7 @@ describe('WebSocket Subscription', () => {
             await sleep(0);
             subActive =
               (
-                await getRedis().smismember(
+                await getCacheRedis().smismember(
                   `medplum:subscriptions:r4:project:${project.id}:active`,
                   `Subscription/${subscription.id}`
                 )
